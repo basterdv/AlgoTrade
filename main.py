@@ -19,6 +19,8 @@ from pydantic import BaseModel
 # выбираем акции Сбера
 sber = Ticker('SBER')
 
+print(sber.marketdata())
+
 # все акции
 stocks = Market('stocks')
 
@@ -31,16 +33,17 @@ class All_stocks:
         stocks_list = all_stocks.to_dict()
         return stocks_list
 
+    # def get_ticker(self):
+    #     ticker = pd.DataFrame(sber.info())
+    #     return ticker
+
+
 # class BaseTable(BaseModel):
 #     a: pd.DataFrame(stocks.tickers())
 #
 #     class Config:
 #         arbitrary_types_allowed = True
 
-# a = All_stocks()
-# st = a.get_table()
-# table = st['SECID']
-# print(table[0])
 
 # print(st['SECID'])
 # all_stocks = stocks.tickers()

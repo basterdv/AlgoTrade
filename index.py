@@ -56,20 +56,18 @@ def index() -> list[AnyComponent]:
         c.Page(
             components=[
                 c.Heading(text='Алго данные с Московской биржи', level=2),
-                # c.Link(components=[c.Text(text='Назад')], on_click=BackEvent()),
-                # c.Button(text="Получить данные", on_click=PageEvent(name="add-table")),
                 c.Table(
                     data=users,
                     data_model=Model,
                     columns=[
-                        DisplayLookup(field='ticker_m', on_click=GoToEvent(url='')),
+                        DisplayLookup(field='ticker_m', on_click=GoToEvent(url='/ticker/{ticker_m}')),
                         DisplayLookup(field='shortname_m'),
                         DisplayLookup(field='lotsize_m'),
                         DisplayLookup(field='minstep_m'),
                         DisplayLookup(field='issuesize_m'),
                         DisplayLookup(field='isin_m'),
                         DisplayLookup(field='regnumber_m'),
-                        DisplayLookup(field='listlevel_m'),
+                        DisplayLookup(field='listlevel_m', table_width_percent=5),
 
                     ],
                 )
@@ -79,56 +77,24 @@ def index() -> list[AnyComponent]:
     ]
 
 
+@app.get('/api/ticker/{ticker_m}', response_model=FastUI, response_model_exclude_none=True)
+def profile_ticker(ticker_m: str) -> list[AnyComponent]:
+    try:
+        ticker_id = next(u for u in users if u.ticker_m == ticker_m)
+    except StopIteration:
+        raise HTTPException(status_code=404, detail="Ticker not found")
+    return [
+        c.Page(
+            components=[
+                c.Heading(text=f'({ticker_id.ticker_m}) {ticker_id.shortname_m}', level=2),
+                c.Details(data=ticker_id),
+                c.Link(components=[c.Text(text='Назад')], on_click=BackEvent()),
+            ]
+        ),
+    ]
+
+
 @app.get('/{path:path}')
 async def html_landing() -> HTMLResponse:
     """Simple HTML page which serves the React app, comes last as it matches all paths."""
     return HTMLResponse(prebuilt_html(title='FastUI Demo'))
-
-
-@app.get('/api/data/add', response_model=FastUI, response_model_exclude_none=True)
-def add_data():
-    return [
-        c.Page(
-            components=[
-                # c.Link(components=[c.Text(text='Назад')], on_click=BackEvent()),
-                # c.Heading(text='Данные с Московской биржи', level=2),
-                # c.Table(
-                #     data=all_stocks,
-                #     # data_model=User,
-                #     columns=[
-                #         DisplayLookup(field='open'),
-                #         DisplayLookup(field='close'),
-                #         # DisplayLookup(field='name', on_click=GoToEvent(url='/user/{id}/')),
-                #         # DisplayLookup(field='dob', mode=DisplayMode.date),
-                #     ],
-                # )
-                c.Button(text="Обновить", on_click=GoToEvent(url="/data/add")),
-            ]
-        )
-    ]
-
-
-@app.get("/api/user/{user_id}/", response_model=FastUI, response_model_exclude_none=True)
-def user_profile(user_id: int) -> list[AnyComponent]:
-    try:
-        user = next(u for u in users if u.id == user_id)
-    except StopIteration:
-        raise HTTPException(status_code=404, detail="User not found")
-    return [
-        c.Page(
-            components=[
-                c.Heading(text=user.name, level=2),
-                c.Link(components=[c.Text(text='Back')], on_click=BackEvent()),
-                c.Details(data=user),
-                c.Button(text="Удалить пользователя", on_click=PageEvent(name="delete-user")),
-                c.Form(
-                    submit_url="/api/user/delete",
-                    form_fields=[
-                        c.FormFieldInput(name='id', title='', initial=user_id, html_type='hidden')
-                    ],
-                    footer=[],
-                    submit_trigger=PageEvent(name="delete-user"),
-                ),
-            ]
-        ),
-    ]
