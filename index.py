@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastui import FastUI, components as c, AnyComponent, prebuilt_html
 from fastui.components.display import DisplayLookup, DisplayMode
 from fastui.events import BackEvent, GoToEvent, PageEvent
@@ -34,8 +34,8 @@ class Model(BaseModel):
 
 users = []
 
+# Формируе картэж тикеров
 for i in ticker:
-
     users.append(
         Model(
             ticker_m=ticker[i],
@@ -49,6 +49,7 @@ for i in ticker:
         ),
     )
 
+
 @app.get("/api/", response_model=FastUI, response_model_exclude_none=True)
 def index() -> list[AnyComponent]:
     return [
@@ -61,7 +62,7 @@ def index() -> list[AnyComponent]:
                     data=users,
                     data_model=Model,
                     columns=[
-                        DisplayLookup(field='ticker_m'),
+                        DisplayLookup(field='ticker_m', on_click=GoToEvent(url='')),
                         DisplayLookup(field='shortname_m'),
                         DisplayLookup(field='lotsize_m'),
                         DisplayLookup(field='minstep_m'),
@@ -69,9 +70,7 @@ def index() -> list[AnyComponent]:
                         DisplayLookup(field='isin_m'),
                         DisplayLookup(field='regnumber_m'),
                         DisplayLookup(field='listlevel_m'),
-                        # DisplayLookup(field='close'),
-                        # DisplayLookup(field='name', on_click=GoToEvent(url='/user/{id}/')),
-                        # DisplayLookup(field='dob', mode=DisplayMode.date),
+
                     ],
                 )
 
@@ -106,4 +105,30 @@ def add_data():
                 c.Button(text="Обновить", on_click=GoToEvent(url="/data/add")),
             ]
         )
+    ]
+
+
+@app.get("/api/user/{user_id}/", response_model=FastUI, response_model_exclude_none=True)
+def user_profile(user_id: int) -> list[AnyComponent]:
+    try:
+        user = next(u for u in users if u.id == user_id)
+    except StopIteration:
+        raise HTTPException(status_code=404, detail="User not found")
+    return [
+        c.Page(
+            components=[
+                c.Heading(text=user.name, level=2),
+                c.Link(components=[c.Text(text='Back')], on_click=BackEvent()),
+                c.Details(data=user),
+                c.Button(text="Удалить пользователя", on_click=PageEvent(name="delete-user")),
+                c.Form(
+                    submit_url="/api/user/delete",
+                    form_fields=[
+                        c.FormFieldInput(name='id', title='', initial=user_id, html_type='hidden')
+                    ],
+                    footer=[],
+                    submit_trigger=PageEvent(name="delete-user"),
+                ),
+            ]
+        ),
     ]
