@@ -1,4 +1,4 @@
-from moexalgo import Ticker, Market
+from moexalgo import *
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field
 from typing import TypeVar
@@ -18,8 +18,7 @@ from pydantic import BaseModel
 
 # выбираем акции Сбера
 sber = Ticker('SBER')
-
-print(sber.marketdata())
+vtbr = Ticker('VTBR')
 
 # все акции
 stocks = Market('stocks')
@@ -53,4 +52,6 @@ class All_stocks:
 
 # получим дневные свечи с 2020 года
 # cand = pd.DataFrame(sber.candles(date='2020-01-01', till_date='2023-11-01', period='D'))
-# print(cand)
+cand = pd.DataFrame(vtbr.candles(date='2024-04-01', till_date='2024-04-03', period='D'))
+
+print(cand)
