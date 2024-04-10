@@ -1,114 +1,38 @@
-from datetime import date
-from typing import Annotated
+import matplotlib.pyplot as plt
+import numpy as np
 
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import HTMLResponse
-from fastui import FastUI, AnyComponent, prebuilt_html, components as c
-from fastui.components.display import DisplayMode, DisplayLookup
-from fastui.events import GoToEvent, BackEvent, PageEvent
-from fastui.forms import fastui_form
-from pydantic import BaseModel, Field
+plt.style.use('_mpl-gallery')
 
-app = FastAPI()
+# make data:
+np.random.seed(1)
+x = [[1, 1.5, 1.5, 2, 2.5, 6], [3, 1, 2, 4, 7, 5], [2, 5, 7, 8, 5, 3]]
+y = [[0, 0, 0.25, 0.75, 0.15, 1], [1, 0.15, 1, 1, 1, 1], [0.5, 0.25, 0, 0, 0, 1]]
 
+# D = np.random.gamma(4, size=(4, 10))
+D = [[1.5, 2, 1.5, 4, 5, 6, 7, 7, 8, 1.5],
+     [3, 2, 1, 6, 5, 2, 3, 4, 2, 2],
+     [1, 4, 3, 2, 3, 2, 3, 4, 4, 3],
+     [3, 4, 4, 5, 4, 3, 6, 7, 9, 1]]
 
-class UserAdd(BaseModel):
-    name: str = Field(title="Имя")
-    dob: date = Field(title="Дата рождения")
+# plot:
+fig, ax = plt.subplots(figsize=(5, 5))
 
+# ax.eventplot(D, orientation="vertical", lineoffsets=x, linewidth=0.75)
 
-class User(UserAdd):
-    id: int
+# ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
+#        ylim=(0, 8), yticks=np.arange(1, 8))
 
+# ax.set_title("   ".join(symbol), fontsize=60)
 
-class UserDelete(BaseModel):
-    id: int
-
-
-users = [
-    User(id=1, name='Артём', dob=date(1990, 1, 1)),
-]
-
-
-@app.post("/api/user")
-def add_user(form: Annotated[UserAdd, fastui_form(UserAdd)]):
-    print(f"{form=}")
-    new_user = User(id=users[-1].id + 1 if users else 1, **form.model_dump())
-    users.append(new_user)
-    return [c.FireEvent(event=GoToEvent(url='/'))]
+ax.yaxis.set_ticks_position('right')
+ax.set_xlim([-0.5, 5])
+# ax.set_ylim([-1, 5])
+for i in range(len(x)):
+    ax.barh(x[i], y[i], 0.3, i, color='green')
+    print(i)
 
 
-@app.post("/api/user/delete")
-def add_user(form: Annotated[UserDelete, fastui_form(UserDelete)]):
-    global users
-    users = [user for user in users if user.id != form.id]
-    return [c.FireEvent(event=GoToEvent(url='/'))]
+# ax.barh(x, y, 0.3, 0, color='green')
+# ax.barh(x2, y2, 0.3, 1, color='red')
 
-
-@app.get("/api/user/add", response_model=FastUI, response_model_exclude_none=True)
-def add_user_page():
-    return [
-        c.Page(
-            components=[
-                c.Link(components=[c.Text(text='Назад')], on_click=BackEvent()),
-                c.Heading(text='Добавить пользователя', level=2),
-                c.ModelForm(
-                    model=UserAdd,
-                    submit_url="/api/user"
-                )
-            ]
-        )
-    ]
-
-
-@app.get("/api/", response_model=FastUI, response_model_exclude_none=True)
-def users_table() -> list[AnyComponent]:
-    return [
-        c.Page(
-            components=[
-                c.Heading(text='Пользователи', level=2),
-                c.Table(
-                    data=users,
-                    data_model=User,
-                    columns=[
-                        DisplayLookup(field='id'),
-                        DisplayLookup(field='name', on_click=GoToEvent(url='/user/')),
-                        DisplayLookup(field='dob', mode=DisplayMode.date),
-                    ],
-                ),
-                c.Button(text="Добавить пользователя", on_click=GoToEvent(url="/user/add"))
-            ]
-        ),
-    ]
-
-
-@app.get("/api/user/", response_model=FastUI, response_model_exclude_none=True)
-def user_profile(user_id: int) -> list[AnyComponent]:
-    try:
-        user = next(u for u in users if u.id == user_id)
-    except StopIteration:
-        raise HTTPException(status_code=404, detail="User not found")
-    return [
-        c.Page(
-            components=[
-                c.Heading(text=user.name, level=2),
-                c.Link(components=[c.Text(text='Back')], on_click=BackEvent()),
-                # c.Details(data=user),
-                # c.Button(text="Удалить пользователя", on_click=PageEvent(name="delete-user")),
-                # c.Form(
-                #     submit_url="/api/user/delete",
-                #     form_fields=[
-                #         c.FormFieldInput(name='id', title='', initial=user_id, html_type='hidden')
-                #     ],
-                #     footer=[],
-                #     submit_trigger=PageEvent(name="delete-user"),
-                # ),
-            ]
-        ),
-    ]
-
-
-@app.get('/{path:path}')
-async def html_landing() -> HTMLResponse:
-    """Simple HTML page which serves the React app, comes last as it matches all paths."""
-    return HTMLResponse(prebuilt_html(title='FastUI Demo'))
+plt.show()

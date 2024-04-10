@@ -3,8 +3,8 @@ from datetime import datetime
 import pandas as pd
 
 import matplotlib.pyplot as plt
-
-path = 'C:/Users/Home/Documents/Workshop/AlgoTrade/Test_QSH/2024_04_02/trades.csv'
+# C:\Users\baste\Documents\WorkShop\AlgoTrade\Test_QSH\2024_04_02\trades.csv
+path = 'C:/Users/baste/Documents/Workshop/AlgoTrade/Test_QSH/2024_04_02/trades.csv'
 
 # data = pd.read_csv(path, names=('A', 'B', 'C', 'D'),index_col=0)
 data = pd.read_csv(path, sep=";", encoding='ANSI',
