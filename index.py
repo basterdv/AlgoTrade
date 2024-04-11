@@ -2,7 +2,7 @@ from collections import defaultdict
 
 import pydantic
 from fastapi import FastAPI, HTTPException, Request
-from fastui import FastUI, components as c, AnyComponent, prebuilt_html
+
 from fastui.components.display import DisplayLookup, DisplayMode
 from fastui.events import BackEvent, GoToEvent, PageEvent
 from fastui.forms import SelectSearchResponse
@@ -10,6 +10,7 @@ from httpx import AsyncClient
 from pydantic import BaseModel, ConfigDict, ValidationError, Field
 from starlette.responses import HTMLResponse
 from main import All_stocks
+from fastui import FastUI, components as c, AnyComponent, prebuilt_html
 
 app = FastAPI()
 
