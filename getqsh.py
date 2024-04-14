@@ -39,9 +39,9 @@ for link in html.find_all('a'):
         print(link.get('href'))
 
 # Скачиваем файл
-file1 = requests.get('http://erinrv.qscalp.ru/2024-04-03/VTBR.2024-04-03.Deals.qsh')
+file1 = requests.get('http://erinrv.qscalp.ru/2024-04-01/VTBR.2024-04-01.Deals.qsh')
 
-with open('Test_QSH/VTBR.2024-04-03.Deals.qsh', 'wb') as file:
+with open('Test_QSH/VTBR.2024-04-01.Deals.qsh', 'wb') as file:
     file.write(file1.content)
 
 users = []
