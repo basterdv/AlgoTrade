@@ -1,11 +1,6 @@
-from fastapi import FastAPI
-from fastui import FastUI, AnyComponent, prebuilt_html, components as c
-from fastapi.responses import HTMLResponse
-
-from pydantic import BaseModel, Field
-
 import requests
 from bs4 import BeautifulSoup as BS
+from fastapi import FastAPI
 
 app = FastAPI()
 
@@ -39,55 +34,8 @@ for link in html.find_all('a'):
         print(link.get('href'))
 
 # Скачиваем файл
-file1 = requests.get('http://erinrv.qscalp.ru/2024-04-01/VTBR.2024-04-01.Deals.qsh')
+file1 = requests.get('http://erinrv.qscalp.ru/2024-04-19/VTBR.2024-04-19.Deals.qsh')
 
-with open('Test_QSH/VTBR.2024-04-01.Deals.qsh', 'wb') as file:
+with open('Test_QSH/VTBR.2024-04-19.Deals.qsh', 'wb') as file:
     file.write(file1.content)
 
-users = []
-
-
-class Model(BaseModel):
-    id: int = Field(title='№')
-    ticker_m: str = Field(title='Тикер')
-
-
-class FilterForm(BaseModel):
-    ticker_id: int = Field()
-
-
-@app.get("/api/", response_model=FastUI, response_model_exclude_none=True)
-def getqsh (page: int = 1, ticker_id: str | None = None) -> list[AnyComponent]:
-    page_size = 20
-    filter_form_initial = {'ticker_id': 3, 'dfdffd': 6}
-
-    return [
-        c.Page(
-            components=[
-                c.Heading(text='Алго данные с Московской биржи', level=2),
-                c.ModelForm(
-                    model=FilterForm,
-                    submit_url='.',
-                    initial=filter_form_initial,
-                    method='GOTO',
-                    submit_on_change=True,
-                    # display_mode='inline',
-                ),
-                c.Table(
-                    data=users[(page - 1) * page_size:page * page_size],
-                    data_model=Model,
-
-                ),
-                c.Pagination(page=page, page_size=page_size, total=len(users)),
-            ]
-        )
-    ]
-
-
-@app.get('/{path:path}')
-async def html_landing() -> HTMLResponse:
-    """Simple HTML page which serves the React app, comes last as it matches all paths."""
-    return HTMLResponse(prebuilt_html(title='Получение исторических данных'))
-
-# print(html.prettify())
-# print(html.a)

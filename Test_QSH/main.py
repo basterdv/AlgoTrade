@@ -6,8 +6,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from pandas import DataFrame
 
-path = 'C:/Users/Home/Documents/Workshop/AlgoTrade/Test_QSH/V/VTBR@TQBR/2024_04_02/trades.csv'
-title = '2024_04_02'
+path = 'C:/Users/Home/Documents/Workshop/AlgoTrade/Test_QSH/V/VTBR@TQBR/2024_04_16/trades.csv'
+title = '2024_04_16'
 data = pd.read_csv(path, sep=";", encoding='ANSI',
                    names=['date_time', '2', '3', 'price', 'quantity', 'delta', '7', '8'])
 

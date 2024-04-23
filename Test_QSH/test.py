@@ -1,4 +1,3 @@
-from fastui import FastUI, AnyComponent, prebuilt_html, components as c
 import requests
 from bs4 import BeautifulSoup as BS
 
